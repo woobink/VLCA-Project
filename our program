@@ -42,34 +42,50 @@ void setup() {
   pinMode(8,OUTPUT);//output z-axis servo(yawing)
 //  pinMode(/*output(servo) pin # */,OUTPUT); 
 
-  Serial.begin(9600);
+  main_motor_esc.writeMicroseconds(1500);     //////////////////////////////////////////
+  sub_motor_esc.writeMicroseconds(1500);
+  main_nozzle_servos.writeMicroseconds(1500);
+  sub_motor_servos.writeMicroseconds(1500);   //    Setting all motors idle
+  xaxis_servos.writeMicroseconds(1500);
+  yaxis_servos.writeMicroseconds(1500);
+  zaxis_servo.writeMicroseconds(1500);        ///////////////////////////////////////////
+
+  Serial.begin(9600);   //set bits speed(9600 is max)
+  delay(3000);    //waits for 7secs
 }
 
-void outputthrust(int val){
-  //function to control thrust
-}
-
-void main_nozzle_angle_control(int val){//this function has 3 options; 0,45,90 degree
-  if (val>/*medium minimum value*/ && val</*medium maximum value*/&& nozzle_angle==0){  //switch movement:0->45
-    //function of rotational servo motor movement control(rotate the main nozzle45 degree)
-    nozzle_angle=45;
+void outputthrust(){
+  if(ch_thrust < /*max minimum val*/ && ch_thrust > /*min minimum val*/){ //if throttle is minimum, stop
+    sub_motor_esc.writeMicroseconds(1500);
+    main_motor_esc.writeMicroseconds(1500);
   }
-
-  else if (val >/*maximum's minimum value*/&& nozzle_angle==45){  //switch movement:45->90
-    //function of rotational servo motor movement control(rotate the main nozzle 45 degree again)
-    nozzle_angle=90;
-  }
-
-  else if (val>/*medium minimum value*/ && val</*medium maximum value*/&& nozzle_angle==90){  //switch movement:90->45
-    //function of rotational servo motor movement control(rotate the main nozzle -45 degree)
-    nozzle_angle=45;
-  }
-
-  else if (val>/*minimum's minimum value*/ && val</*minimum's maximum value*/&& nozzle_angle==45){  //switch movement:45->0
-    //function of rotational servo motor movement control(rotate the main nozzle -45 degree again)
-    nozzle_angle=0;
+  else{
+    sub_motor_esc.writeMicroseconds(/*min minimum value*/+ (ch_thrust - /*min minimum value*/)*0.5));     //limiting throttle to 90% for safety purpose
+    main_motor_esc.writeMicroseconds(/*min minimum value*/+ (ch_thrust - /*min minimum value*/)*0.5));    //for test, use 50% instead
   }
 }
+
+// void main_nozzle_angle_control(int val){//this function has 3 options; 0,45,90 degree
+//   if (val>/*medium minimum value*/ && val</*medium maximum value*/&& nozzle_angle==0){  //switch movement:0->45
+//     //function of rotational servo motor movement control(rotate the main nozzle45 degree)
+//     nozzle_angle=45;
+//   }
+
+//   else if (val >/*maximum's minimum value*/&& nozzle_angle==45){  //switch movement:45->90
+//     //function of rotational servo motor movement control(rotate the main nozzle 45 degree again)
+//     nozzle_angle=90;
+//   }
+
+//   else if (val>/*medium minimum value*/ && val</*medium maximum value*/&& nozzle_angle==90){  //switch movement:90->45
+//     //function of rotational servo motor movement control(rotate the main nozzle -45 degree)
+//     nozzle_angle=45;
+//   }
+
+//   else if (val>/*minimum's minimum value*/ && val</*minimum's maximum value*/&& nozzle_angle==45){  //switch movement:45->0
+//     //function of rotational servo motor movement control(rotate the main nozzle -45 degree again)
+//     nozzle_angle=0;
+//   }
+// }
 
 void xaxis_movement(int val){
   //xaxis movement function
@@ -101,34 +117,34 @@ void printvalues(){
 }
 
 void loop() {
-  ch_thrust = pulseIn(/*input pin # */, High, 1000);       //------------------------------------
-  ch_nozzle_angle = pulseIn(/*input pin # */, High, 1000);
-  ch_xaxis = pulseIn(/*input pin # */, High, 1000);        // getting length of time from receiver
-  ch_yaxis = pulseIn(/*input pin # */, High, 1000);
-  ch_zaxis = pulseIn(/*input pin # */, High, 1000);        // -----------------------------------
+  ch_thrust = pulseIn(A3, HIGH, 21000);       //------------------------------------
+  ch_nozzle_angle = pulseIn(A4, HIGH, 21000);
+  ch_xaxis = pulseIn(A0, HIGH, 21000);        // getting pulse width from receiver
+  ch_yaxis = pulseIn(A1, HIGH, 21000);
+  ch_zaxis = pulseIn(A2, HIGH, 21000);        // -----------------------------------
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*main control program*/
 
-  if (ch_thrust>/*minimum thrust value*/){
-    outputthrust(ch_thrust);
-  }
+  // if (ch_thrust>/*minimum thrust value*/){
+  //   outputthrust();
+  // }
 
-  if (ch_nozzle_angle>/*very minumum value*/ && ch_nozzle_angle</*very maximum value*/){
-    main_nozzle_angle_control(ch_nozzle_angle);
-  }
+  // if (ch_nozzle_angle>/*very minumum value*/ && ch_nozzle_angle</*very maximum value*/){
+  //   main_nozzle_angle_control(ch_nozzle_angle);
+  // }
 
-  if (ch_xaxis>/*minimum x-axis value*/){
-    xaxis_movement(ch_xaxis);
-  }
+  // if (ch_xaxis>/*minimum x-axis value*/){
+  //   xaxis_movement(ch_xaxis);
+  // }
 
-  if (ch_yaxis>/*minimum y-axis value*/){
-    yaxis_movement(ch_yaxis);
-  }
+  // if (ch_yaxis>/*minimum y-axis value*/){
+  //   yaxis_movement(ch_yaxis);
+  // }
 
-  if (ch_zaxis>/*minimum z-axis value*/){
-    zaxis_movement(ch_zaxis);
-  }
+  // if (ch_zaxis>/*minimum z-axis value*/){
+  //   zaxis_movement(ch_zaxis);
+  // }
 
 //////////////////////////////////////////////////////////////////////////
 
